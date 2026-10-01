@@ -1,0 +1,8 @@
+import {useEffect,useState} from "react";
+import {api} from "../api";
+import {GitCompare} from "lucide-react";
+export default function Compare(){
+ const [items,setItems]=useState([]);const [selected,setSelected]=useState([]);useEffect(()=>{api.get("/properties").then(r=>setItems(r.data))},[]);
+ const toggle=id=>setSelected(s=>s.includes(id)?s.filter(x=>x!==id):s.length<3?[...s,id]:s);const rows=items.filter(p=>selected.includes(p.property_id));
+ return <section className="wrap page"><div className="pageIntro"><span className="eyebrow dark">SMART COMPARISON</span><h1>Compare rentals</h1><p>Compare up to three Rentora listings by price, location, type, bedrooms and availability.</p></div><div className="comparePick card">{items.map(p=><label className={selected.includes(p.property_id)?"pick active":"pick"} key={p.property_id}><input type="checkbox" checked={selected.includes(p.property_id)} onChange={()=>toggle(p.property_id)}/><span>{p.title}</span><small>₹{Number(p.monthly_rent).toLocaleString()}</small></label>)}</div>{rows.length?<div className="compareTable card"><table><thead><tr><th>Feature</th>{rows.map(p=><th key={p.property_id}>{p.title}</th>)}</tr></thead><tbody>{[["Rent",p=>`₹${Number(p.monthly_rent).toLocaleString()}/mo`],["Location",p=>`${p.area}, ${p.city}`],["Type",p=>p.property_type],["Bedrooms",p=>p.bedrooms],["Bathrooms",p=>p.bathrooms],["Furnished",p=>p.furnished?"Yes":"No"],["Availability",p=>p.status]].map(([t,fn])=><tr key={t}><td>{t}</td>{rows.map(p=><td key={p.property_id}>{fn(p)}</td>)}</tr>)}</tbody></table></div>:<div className="emptyState card"><GitCompare size={31}/><h3>Select properties to compare</h3><p>Choose two or three listings above.</p></div>}</section>
+}

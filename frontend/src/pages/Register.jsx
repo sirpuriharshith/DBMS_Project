@@ -1,0 +1,9 @@
+import {useState} from "react";
+import {Link,useNavigate} from "react-router-dom";
+import {ArrowRight,Home} from "lucide-react";
+import {useAuth} from "../auth/AuthContext";
+export default function Register(){
+ const {register}=useAuth();const nav=useNavigate();const [f,setF]=useState({full_name:"",email:"",password:"",phone:"",role:"TENANT"});const [error,setError]=useState("");const [loading,setLoading]=useState(false);const set=(k,v)=>setF(x=>({...x,[k]:v}));
+ const submit=async e=>{e.preventDefault();setLoading(true);setError("");try{const u=await register(f);nav(u.role==="OWNER"?"/owner":"/tenant")}catch(err){setError(err.response?.data?.detail||"Registration failed")}finally{setLoading(false)}};
+ return <section className="authPage"><div className="authCard card"><div className="authBrand"><span className="brandmark"><Home size={19}/></span><b>Rentora</b></div><h1>Create your account</h1><p>Join as a Tenant or Owner.</p>{error&&<div className="errorBox">{error}</div>}<form className="authForm" onSubmit={submit}><label>Full name<input required value={f.full_name} onChange={e=>set("full_name",e.target.value)}/></label><label>Email<input required type="email" value={f.email} onChange={e=>set("email",e.target.value)}/></label><label>Phone<input value={f.phone} onChange={e=>set("phone",e.target.value)}/></label><label>Password<input required minLength="6" type="password" value={f.password} onChange={e=>set("password",e.target.value)}/></label><label>Account type<select value={f.role} onChange={e=>set("role",e.target.value)}><option value="TENANT">Tenant</option><option value="OWNER">Owner</option></select></label><button className="button primary full">{loading?"Creating...":"Create account"} <ArrowRight size={17}/></button></form><p className="authFoot">Already registered? <Link to="/login">Sign in</Link></p></div></section>
+}

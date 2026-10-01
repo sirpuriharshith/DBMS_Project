@@ -1,0 +1,10 @@
+import {useEffect,useState} from "react";
+import {useParams,Link} from "react-router-dom";
+import {api} from "../api";
+import {ArrowLeft,CheckCircle2,FileText,Printer,ShieldCheck} from "lucide-react";
+import Loading from "../components/Loading";
+export default function Contract(){
+ const {id}=useParams();const [c,setC]=useState(null);const [error,setError]=useState("");useEffect(()=>{api.post(`/contracts/${id}`).then(r=>setC(r.data)).catch(e=>setError(e.response?.data?.detail||"Could not create contract"))},[id]);
+ if(error)return <section className="wrap page narrow"><div className="errorBox">{error}</div><Link to="/tenant" className="textLink inlineBack"><ArrowLeft size={15}/> Back to dashboard</Link></section>;if(!c)return <section className="wrap page narrow"><Loading/></section>;
+ return <section className="wrap page narrow"><Link to="/tenant" className="textLink inlineBack"><ArrowLeft size={15}/> Back to dashboard</Link><div className="contractPage card"><div className="contractHead"><div><span className="eyebrow dark">DIGITAL AGREEMENT</span><h1>Rental Contract</h1><p className="contractSub">A printable contract record generated from your Rentora booking.</p></div><div className="contractSeal"><ShieldCheck size={26}/><span>SECURE RECORD</span></div></div><hr/><div className="contractNumber">Contract: {c.contract_number}</div><div className="contractMeta"><span>Booking #{c.booking_id}</span><span>Status: {c.contract_status}</span></div><h3>Terms & Conditions</h3><p>{c.terms}</p><div className="contractGrid"><div><span>Tenant signing</span><b><CheckCircle2/> {c.tenant_signed?"Signed":"Pending"}</b></div><div><span>Owner signing</span><b>{c.owner_signed?<><CheckCircle2/> Signed</>:"Pending owner signature"}</b></div></div><div className={`contractStatus ${c.owner_signed?"confirmedContract":""}`}>{c.owner_signed?"Agreement confirmed by owner":"Status"}: <b>{c.contract_status}</b></div><button className="button darkButton" onClick={()=>window.print()}><Printer size={16}/> Print / Save contract</button></div></section>
+}
